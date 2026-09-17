@@ -1,0 +1,118 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+    @font-face {
+
+        font-family: 'noteFont';
+        src: local('Segoe Script'), local('Bradley Hand'), local('Comic Sans MS');
+    }
+
+    html, body {
+        margin: 0;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+        background: transparent;
+        overflow: hidden;
+        pointer-events: none;
+        font-family: 'noteFont', 'Comic Sans MS', cursive, sans-serif;
+    }
+
+    #note {
+        position: absolute;
+        top: 8%;
+        right: 4%;
+        width: 260px;
+        padding: 22px 20px 26px;
+        background: linear-gradient(180deg, #fff6b0 0%, #ffe985 100%);
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+        transform: rotate(4deg) translateY(-20px) scale(0.92);
+        opacity: 0;
+        transition: transform 0.35s cubic-bezier(.2, 1.4, .4, 1), opacity 0.35s ease;
+    }
+
+    #note::before {
+
+        content: '';
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        width: 70px;
+        height: 22px;
+        margin-left: -35px;
+        background: rgba(255, 255, 255, 0.55);
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        transform: rotate(-3deg);
+    }
+
+    #note.show {
+        transform: rotate(4deg) translateY(0) scale(1);
+        opacity: 1;
+    }
+
+    #note .heading {
+        font-family: Arial, sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #7a6a12;
+        opacity: 0.75;
+        margin: 0 0 10px;
+    }
+
+    #note .number {
+        font-size: 26px;
+        line-height: 1.1;
+        color: #2c2c2c;
+        margin: 0 0 12px;
+        font-weight: 700;
+    }
+
+    #note .phrase {
+        font-size: 20px;
+        line-height: 1.25;
+        color: #1f1f1f;
+    }
+
+    #note .phrase::before,
+    #note .phrase::after {
+        opacity: 0.6;
+    }
+</style>
+</head>
+<body>
+    <div id="note">
+        <p class="heading">Scrawled Note</p>
+        <p class="number" id="note-number"></p>
+        <p class="phrase" id="note-phrase"></p>
+    </div>
+
+    <script>
+        const el = document.getElementById('note');
+        const numberEl = document.getElementById('note-number');
+        const phraseEl = document.getElementById('note-phrase');
+        let hideTimer = null;
+
+        window.addEventListener('message', (event) => {
+            const data = event.data;
+            if (!data || data.action !== 'sd_blackmarket:note') return;
+
+            numberEl.textContent = data.number || '';
+            phraseEl.textContent = '"' + (data.phrase || '') + '"';
+
+            el.classList.remove('show');
+
+            void el.offsetWidth;
+            el.classList.add('show');
+
+            if (hideTimer) clearTimeout(hideTimer);
+            hideTimer = setTimeout(() => {
+                el.classList.remove('show');
+            }, data.duration || 9000);
+        });
+</script>
+</body>
+</html>
