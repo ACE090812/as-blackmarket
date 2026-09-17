@@ -2,7 +2,7 @@ fx_version 'cerulean'
 game 'gta5'
 lua54 'yes'
 
-name 'sd_blackmarket'
+name 'as_blackmarket'
 author 'you'
 description 'Standalone black-market dealer, reachable through sd-phones real Messages app - built as an addon, no sd-phone core files touched.'
 version '1.0.0'

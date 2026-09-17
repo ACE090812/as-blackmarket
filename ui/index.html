@@ -98,7 +98,7 @@
 
         window.addEventListener('message', (event) => {
             const data = event.data;
-            if (!data || data.action !== 'sd_blackmarket:note') return;
+            if (!data || data.action !== 'as_blackmarket:note') return;
 
             numberEl.textContent = data.number || '';
             phraseEl.textContent = '"' + (data.phrase || '') + '"';

@@ -4,7 +4,7 @@ end)
 
 local activeOrder = nil
 local dropPed = nil
-local TARGET_OPTION = 'sd_blackmarket:collect'
+local TARGET_OPTION = 'as_blackmarket:collect'
 
 local function ensureDropPed()
     if dropPed and DoesEntityExist(dropPed) then return end
@@ -39,7 +39,7 @@ local function ensureDropPed()
             label = 'Collect Order',
             distance = 2.0,
             onSelect = function()
-                local result = lib.callback.await('sd_blackmarket:collect', false)
+                local result = lib.callback.await('as_blackmarket:collect', false)
                 if result and result.ok then
                     lib.notify({ description = BMT('collectSuccess') })
                     activeOrder = nil
@@ -60,21 +60,21 @@ function removeDropPed()
     dropPed = nil
 end
 
-RegisterNetEvent('sd_blackmarket:client:order', function(order)
+RegisterNetEvent('as_blackmarket:client:order', function(order)
     activeOrder = order
     ensureDropPed()
 end)
 
-RegisterNetEvent('sd_blackmarket:client:orderCleared', function()
+RegisterNetEvent('as_blackmarket:client:orderCleared', function()
     activeOrder = nil
     removeDropPed()
     pcall(lib.hideTextUI)
 end)
 
-RegisterNetEvent('sd_blackmarket:client:notify', function(data)
+RegisterNetEvent('as_blackmarket:client:notify', function(data)
     if type(data) ~= 'table' then return end
     SendNUIMessage({
-        action   = 'sd_blackmarket:note',
+        action   = 'as_blackmarket:note',
         number   = data.number,
         phrase   = data.phrase,
         duration = 9000,
@@ -85,7 +85,7 @@ CreateThread(function()
     while true do
         Wait(15000)
         if not activeOrder then
-            local order = lib.callback.await('sd_blackmarket:getOrder', false)
+            local order = lib.callback.await('as_blackmarket:getOrder', false)
             if order then
                 activeOrder = order
                 ensureDropPed()

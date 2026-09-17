@@ -1,4 +1,4 @@
-# sd_blackmarket
+# as_blackmarket
 
 Phase 1 of the black-market dealer plan: a standalone resource, no edits to sd-phone itself.
 The whole conversation happens in sd-phone's real Messages app - this resource just listens for
@@ -21,7 +21,7 @@ messages sent to the dealer's number and reacts.
          stack = false,
          close = true,
          client = {
-             export = 'sd_blackmarket.blackmarket_note',
+             export = 'as_blackmarket.blackmarket_note',
          },
      },
      ```
@@ -64,7 +64,7 @@ as `'account'`, you can skip the cash item entirely.
     stack = false,
     close = true,
     client = {
-        export = 'sd_blackmarket.blackmarket_note', -- see "Before you start it" above
+        export = 'as_blackmarket.blackmarket_note', -- see "Before you start it" above
     },
 },
 

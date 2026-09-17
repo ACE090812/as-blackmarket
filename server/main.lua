@@ -161,7 +161,7 @@ BMBridge.registerNoteUsable(function(source, slot)
         BMBridge.removeItem(source, Config.stickyNote.item, 1)
     end
 
-    TriggerClientEvent('sd_blackmarket:client:notify', source, {
+    TriggerClientEvent('as_blackmarket:client:notify', source, {
         number = formatUkNumber(Config.dealer.number),
         phrase = phrase,
     })
@@ -235,7 +235,7 @@ local function handleOrderMessage(source, cid, playerNumber, body)
     reply(playerNumber, BMT('orderConfirmed', displayLabel))
     sendDropLocation(playerNumber, order)
 
-    TriggerClientEvent('sd_blackmarket:client:order', source, {
+    TriggerClientEvent('as_blackmarket:client:order', source, {
         itemId = order.itemId, label = displayLabel, price = order.price,
         coords = order.coords, expiresAt = order.expiresAt,
     })
@@ -275,7 +275,7 @@ local function chargePlayer(source, price)
     return BMBridge.removeMoney(source, Config.payment.account, price)
 end
 
-lib.callback.register('sd_blackmarket:getOrder', function(source)
+lib.callback.register('as_blackmarket:getOrder', function(source)
     local cid = BMBridge.getIdentifier(source)
     local order = cid and orders[cid]
     if not order then return nil end
@@ -283,7 +283,7 @@ lib.callback.register('sd_blackmarket:getOrder', function(source)
              coords = order.coords, expiresAt = order.expiresAt }
 end)
 
-lib.callback.register('sd_blackmarket:collect', function(source)
+lib.callback.register('as_blackmarket:collect', function(source)
     local cid = BMBridge.getIdentifier(source)
     local order = cid and orders[cid]
     if not order then return { ok = false, error = BMT('collectNoOrder') } end
@@ -319,7 +319,7 @@ CreateThread(function()
                 changed = true
                 reply(order.playerNumber, BMT('orderExpiredNotice'))
                 if order.source then
-                    TriggerClientEvent('sd_blackmarket:client:orderCleared', order.source)
+                    TriggerClientEvent('as_blackmarket:client:orderCleared', order.source)
                 end
             end
         end
