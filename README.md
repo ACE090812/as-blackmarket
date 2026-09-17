@@ -205,8 +205,6 @@ switching to ox_inventory is the way to get it.
 ## Not in Phase 1 (see the roadmap doc)
 
 - Trust/reputation levels, sting/police risk, scam chance - Phase 2.
-- AI-generated dealer replies instead of the fixed lines in `config.lua` - Phase 3.
-- Any voice/call version - Phase 4.
 
 Everything above is config-driven on purpose - reply wording, phrases, prices, cooldowns, drop
 spots - so none of it needs a code change to tune once it's running.
