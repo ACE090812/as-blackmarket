@@ -1,4 +1,7 @@
 Config = {
+    -- Language: any file in locales/ (locales/en.lua = English). Copy en.lua to add a language.
+    locale = 'en',
+
     -- 'auto' detects qbx_core / qb-core / es_extended / falls back to 'standalone'.
     -- 'standalone' has no real money accounts - balance checks are skipped (always allowed).
     framework = 'auto',

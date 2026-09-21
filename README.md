@@ -1,4 +1,4 @@
-# as_blackmarket
+# sd_blackmarket
 
 Phase 1 of the black-market dealer plan: a standalone resource, no edits to sd-phone itself.
 The whole conversation happens in sd-phone's real Messages app - this resource just listens for
@@ -21,7 +21,7 @@ messages sent to the dealer's number and reacts.
          stack = false,
          close = true,
          client = {
-             export = 'as_blackmarket.blackmarket_note',
+             export = 'sd_blackmarket.blackmarket_note',
          },
      },
      ```
@@ -64,7 +64,7 @@ as `'account'`, you can skip the cash item entirely.
     stack = false,
     close = true,
     client = {
-        export = 'as_blackmarket.blackmarket_note', -- see "Before you start it" above
+        export = 'sd_blackmarket.blackmarket_note', -- see "Before you start it" above
     },
 },
 
@@ -202,9 +202,26 @@ regardless of the `consumeOnUse` setting - otherwise the same note could be rere
 phrases indefinitely. If you're on qb-inventory and want the "keep it as a memento" behaviour,
 switching to ox_inventory is the way to get it.
 
+## Languages
+
+The script's own text (the dealer's order/cooldown/expiry messages, the drop-point pin, the
+"Collect Order" target, collection results and the sticky-note popup heading) lives in
+`locales/en.lua`. To switch language set `Config.locale` in `config.lua`. To add one, copy
+`locales/en.lua` to `locales/<code>.lua` (e.g. `de.lua`), translate the values only (keep the keys and
+the `%s` / `%d` placeholders, in the same order), change `Locales['en']` to `Locales['<code>']` and set
+`Config.locale = '<code>'`. Any key missing from your file falls back to English. (This replaces the old
+`Lang` table / `BMT()` helper, which no longer exist.)
+
+Not in the locale files, because it is owner-editable text in `config.lua`: everything under
+`Config.conversation` (stranger replies, `vettedIntro`, `vettedFallback`), the dealer name, the note
+phrases (`Config.stickyNote.phrases`, including the `name` word players must type) and the catalog
+labels/aliases. Translate those directly in `config.lua`.
+
 ## Not in Phase 1 (see the roadmap doc)
 
 - Trust/reputation levels, sting/police risk, scam chance - Phase 2.
+- AI-generated dealer replies instead of the fixed lines in `config.lua` - Phase 3.
+- Any voice/call version - Phase 4.
 
 Everything above is config-driven on purpose - reply wording, phrases, prices, cooldowns, drop
 spots - so none of it needs a code change to tune once it's running.

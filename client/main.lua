@@ -4,7 +4,7 @@ end)
 
 local activeOrder = nil
 local dropPed = nil
-local TARGET_OPTION = 'as_blackmarket:collect'
+local TARGET_OPTION = 'sd_blackmarket:collect'
 
 local function ensureDropPed()
     if dropPed and DoesEntityExist(dropPed) then return end
@@ -36,16 +36,16 @@ local function ensureDropPed()
         {
             name = TARGET_OPTION,
             icon = 'fa-solid fa-box',
-            label = 'Collect Order',
+            label = T('collect.target'),
             distance = 2.0,
             onSelect = function()
-                local result = lib.callback.await('as_blackmarket:collect', false)
+                local result = lib.callback.await('sd_blackmarket:collect', false)
                 if result and result.ok then
-                    lib.notify({ description = BMT('collectSuccess') })
+                    lib.notify({ description = T('collect.success') })
                     activeOrder = nil
                     removeDropPed()
                 elseif result then
-                    lib.notify({ description = result.error or 'Failed', type = 'error' })
+                    lib.notify({ description = result.error or T('collect.failed'), type = 'error' })
                 end
             end,
         },
@@ -60,21 +60,25 @@ function removeDropPed()
     dropPed = nil
 end
 
-RegisterNetEvent('as_blackmarket:client:order', function(order)
+RegisterNUICallback('locale', function(_, cb)
+    cb(LocaleDict())
+end)
+
+RegisterNetEvent('sd_blackmarket:client:order', function(order)
     activeOrder = order
     ensureDropPed()
 end)
 
-RegisterNetEvent('as_blackmarket:client:orderCleared', function()
+RegisterNetEvent('sd_blackmarket:client:orderCleared', function()
     activeOrder = nil
     removeDropPed()
     pcall(lib.hideTextUI)
 end)
 
-RegisterNetEvent('as_blackmarket:client:notify', function(data)
+RegisterNetEvent('sd_blackmarket:client:notify', function(data)
     if type(data) ~= 'table' then return end
     SendNUIMessage({
-        action   = 'as_blackmarket:note',
+        action   = 'sd_blackmarket:note',
         number   = data.number,
         phrase   = data.phrase,
         duration = 9000,
@@ -85,7 +89,7 @@ CreateThread(function()
     while true do
         Wait(15000)
         if not activeOrder then
-            local order = lib.callback.await('as_blackmarket:getOrder', false)
+            local order = lib.callback.await('sd_blackmarket:getOrder', false)
             if order then
                 activeOrder = order
                 ensureDropPed()

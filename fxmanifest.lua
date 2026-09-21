@@ -2,7 +2,7 @@ fx_version 'cerulean'
 game 'gta5'
 lua54 'yes'
 
-name 'as_blackmarket'
+name 'sd_blackmarket'
 author 'you'
 description 'Standalone black-market dealer, reachable through sd-phones real Messages app - built as an addon, no sd-phone core files touched.'
 version '1.0.0'
@@ -13,7 +13,8 @@ shared_script '@ox_lib/init.lua'
 
 shared_scripts {
     'config.lua',
-    'locales/en.lua',
+    'shared/locale.lua',
+    'locales/*.lua',
 }
 
 server_scripts {

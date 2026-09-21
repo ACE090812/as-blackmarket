@@ -85,20 +85,51 @@
 </head>
 <body>
     <div id="note">
-        <p class="heading">Scrawled Note</p>
+        <p class="heading" data-i18n="ui.noteHeading">Scrawled Note</p>
         <p class="number" id="note-number"></p>
         <p class="phrase" id="note-phrase"></p>
     </div>
 
     <script>
+        var RESOURCE = (typeof GetParentResourceName === 'function') ? GetParentResourceName() : 'as-blackmarket';
+
+        // NUI locale helper: English stays in the markup as the default; the dictionary comes from the client script.
+        var I18N = {};
+        function t(key) {
+            var s = Object.prototype.hasOwnProperty.call(I18N, key) ? I18N[key] : key;
+            var args = Array.prototype.slice.call(arguments, 1), i = 0;
+            return String(s).replace(/%[sd]/g, function () { return i < args.length ? args[i++] : ''; });
+        }
+        function applyI18n(root) {
+            root = root || document;
+            root.querySelectorAll('[data-i18n]').forEach(function (el) { if (I18N[el.dataset.i18n] != null) el.textContent = t(el.dataset.i18n); });
+            ['placeholder', 'title', 'aria-label'].forEach(function (a) {
+                root.querySelectorAll('[data-i18n-' + a + ']').forEach(function (el) {
+                    var k = el.getAttribute('data-i18n-' + a); if (I18N[k] != null) el.setAttribute(a, t(k));
+                });
+            });
+        }
+        // RESOURCE = this resource's name. The client script answers this callback with LocaleDict().
+        function loadLocale(cb) {
+            fetch('https://' + RESOURCE + '/locale', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+                .then(function (r) { return r.json(); })
+                .then(function (d) { if (d && typeof d === 'object') { I18N = d; } applyI18n(); if (cb) cb(); })
+                .catch(function () { if (cb) cb(); });
+        }
+
         const el = document.getElementById('note');
         const numberEl = document.getElementById('note-number');
         const phraseEl = document.getElementById('note-phrase');
         let hideTimer = null;
 
+        // The client script may not have registered its 'locale' callback yet when the page first loads,
+        // so if the dictionary is still empty when a note is shown, ask again first.
+        loadLocale();
+
         window.addEventListener('message', (event) => {
             const data = event.data;
-            if (!data || data.action !== 'as_blackmarket:note') return;
+            if (!data || data.action !== 'sd_blackmarket:note') return;
+            if (Object.keys(I18N).length === 0) loadLocale();
 
             numberEl.textContent = data.number || '';
             phraseEl.textContent = '"' + (data.phrase || '') + '"';

@@ -71,17 +71,17 @@ end
 local function sendDropLocation(playerNumber, order)
     exports['sd-phone']:sendLocation(Config.dealer.number, Config.dealer.name, playerNumber,
         order.coords.x, order.coords.y, {
-            label = 'Drop point',
+            label = T('dealer.dropLabel'),
             icon  = 'MapPin',
             color = '#e5484d',
-            body  = 'Here. Don\'t hang about.',
+            body  = T('dealer.dropBody'),
         })
 end
 
 local function catalogSummary()
     local parts = {}
     for _, entry in ipairs(Config.catalog) do
-        parts[#parts + 1] = ('%s - $%d'):format(entry.label, entry.price)
+        parts[#parts + 1] = T('catalog.entry', entry.label, entry.price)
     end
     return table.concat(parts, '  |  ')
 end
@@ -161,7 +161,7 @@ BMBridge.registerNoteUsable(function(source, slot)
         BMBridge.removeItem(source, Config.stickyNote.item, 1)
     end
 
-    TriggerClientEvent('as_blackmarket:client:notify', source, {
+    TriggerClientEvent('sd_blackmarket:client:notify', source, {
         number = formatUkNumber(Config.dealer.number),
         phrase = phrase,
     })
@@ -194,13 +194,13 @@ end
 
 local function handleOrderMessage(source, cid, playerNumber, body)
     if orders[cid] then
-        reply(playerNumber, BMT('alreadyHaveOrder'))
+        reply(playerNumber, T('dealer.alreadyHaveOrder'))
         return
     end
 
     local now = os.time()
     if nextOrderAllowedAt[cid] and now < nextOrderAllowedAt[cid] then
-        reply(playerNumber, BMT('orderCooldown'))
+        reply(playerNumber, T('dealer.orderCooldown'))
         return
     end
 
@@ -213,7 +213,7 @@ local function handleOrderMessage(source, cid, playerNumber, body)
     nextOrderAllowedAt[cid] = now + math.floor(Config.order.cooldownMs / 1000)
 
     local quantity = parseQuantity(body)
-    local displayLabel = quantity > 1 and ('%dx %s'):format(quantity, entry.label) or entry.label
+    local displayLabel = quantity > 1 and T('order.multiLabel', quantity, entry.label) or entry.label
     local spot = Config.order.dropSpots[math.random(1, #Config.order.dropSpots)]
     local order = {
         citizenid    = cid,
@@ -232,10 +232,10 @@ local function handleOrderMessage(source, cid, playerNumber, body)
     orders[cid] = order
     saveOrders()
 
-    reply(playerNumber, BMT('orderConfirmed', displayLabel))
+    reply(playerNumber, T('dealer.orderConfirmed', displayLabel))
     sendDropLocation(playerNumber, order)
 
-    TriggerClientEvent('as_blackmarket:client:order', source, {
+    TriggerClientEvent('sd_blackmarket:client:order', source, {
         itemId = order.itemId, label = displayLabel, price = order.price,
         coords = order.coords, expiresAt = order.expiresAt,
     })
@@ -275,7 +275,7 @@ local function chargePlayer(source, price)
     return BMBridge.removeMoney(source, Config.payment.account, price)
 end
 
-lib.callback.register('as_blackmarket:getOrder', function(source)
+lib.callback.register('sd_blackmarket:getOrder', function(source)
     local cid = BMBridge.getIdentifier(source)
     local order = cid and orders[cid]
     if not order then return nil end
@@ -283,22 +283,22 @@ lib.callback.register('as_blackmarket:getOrder', function(source)
              coords = order.coords, expiresAt = order.expiresAt }
 end)
 
-lib.callback.register('as_blackmarket:collect', function(source)
+lib.callback.register('sd_blackmarket:collect', function(source)
     local cid = BMBridge.getIdentifier(source)
     local order = cid and orders[cid]
-    if not order then return { ok = false, error = BMT('collectNoOrder') } end
+    if not order then return { ok = false, error = T('collect.noOrder') } end
 
     local ped = GetPlayerPed(source)
     local pos = (ped and ped ~= 0) and GetEntityCoords(ped) or nil
-    if not pos then return { ok = false, error = BMT('collectNoOrder') } end
+    if not pos then return { ok = false, error = T('collect.noOrder') } end
 
     local dropVec = vector3(order.coords.x, order.coords.y, order.coords.z)
     if #(pos - dropVec) > Config.order.collectDistance then
-        return { ok = false, error = BMT('collectTooFar') }
+        return { ok = false, error = T('collect.tooFar') }
     end
 
     if not chargePlayer(source, order.price) then
-        return { ok = false, error = BMT('collectNotEnoughCash') }
+        return { ok = false, error = T('collect.notEnoughCash') }
     end
 
     BMBridge.addItem(source, order.item, order.quantity or 1)
@@ -317,9 +317,9 @@ CreateThread(function()
             if now > order.expiresAt then
                 orders[cid] = nil
                 changed = true
-                reply(order.playerNumber, BMT('orderExpiredNotice'))
+                reply(order.playerNumber, T('dealer.orderExpired'))
                 if order.source then
-                    TriggerClientEvent('as_blackmarket:client:orderCleared', order.source)
+                    TriggerClientEvent('sd_blackmarket:client:orderCleared', order.source)
                 end
             end
         end
